@@ -1,4 +1,5 @@
-﻿using BlogApi.Service;
+﻿using BlogApi.Models;
+using BlogApi.Service;
 using BlogApi.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,41 +13,24 @@ namespace BlogApi.Controllers
     {
         private readonly IAuthorService _authorService;
 
-        public AuthorController(IAuthorService authorService)
+        public AuthorController(IAuthorService  authorService)
         {
             _authorService = authorService;
         }
 
-        [HttpGet]
-        public IActionResult Get()
-        {
-            _authorService.Conn();
-            return Ok();
-        }
 
-        // GET api/<AuthorsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        // GET api/<AuthorsController>/Post/5
+        [HttpGet("Author/{id}")]
+        public ActionResult<Autor> Get(int id)
         {
-           return _authorService.GetPostById(id);
-        }
+            var author = _authorService.GetPostById(id);
 
-        // POST api/<AuthorsController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+            if (author == null)
+            {
+                return NotFound(); 
+            }
 
-        // PUT api/<AuthorsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<AuthorsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return author;
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BlogApi.Models;
+using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace BlogApi.Controllers
 {
@@ -8,36 +8,27 @@ namespace BlogApi.Controllers
     [ApiController]
     public class BlogController : ControllerBase
     {
-        // GET: api/<AuthorsController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        // GET: api/Post/{id}
+        [HttpGet("Post/{id}")]
+        public ActionResult<Post> GetPost(int id)
         {
-            return new string[] { "value1", "value2" };
+            return null;
         }
 
-        // GET api/<AuthorsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        // GET: api/Blog/Posts?pageNumber=1&pageSize=10
+        [HttpGet("Posts")]
+        public ActionResult<List<Post>> GetPosts(int pageNumber, int pageSize)
         {
-            return "value";
+
+            return null;
         }
 
-        // POST api/<AuthorsController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        // POST: api/Blog/AddPost
+        [HttpPost("Post")]
+        public ActionResult<string> AddPost([FromBody] Post value)
         {
-        }
 
-        // PUT api/<AuthorsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<AuthorsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return null;
         }
     }
 }

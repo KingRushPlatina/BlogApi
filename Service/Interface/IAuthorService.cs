@@ -4,7 +4,6 @@ namespace BlogApi.Service.Interface
 {
     public interface IAuthorService
     {
-        public void Conn();
-        public string GetPostById(int id);
+        public Autor GetPostById(int id);
     }
 }

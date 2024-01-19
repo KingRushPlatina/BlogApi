@@ -4,83 +4,69 @@ using System.Globalization;
 using System.Threading;
 using BlogApi.Service.Interface;
 using Microsoft.Data.SqlClient;
-
 using System;
-using System.Data;
 using System.Data.SqlClient;
-using System.Globalization;
 using System.Threading;
+using Microsoft.Extensions.Configuration;
+using System.Xml;
+using BlogApi.Models;
 
 public class AuthorService : IAuthorService
 {
-    const string serverName = "DESKTOP-EIE5MAT\\SQLEXPRESS";
-    const string dbName = "Post";
-    const string _connectionString = "Data Source=DESKTOP-EIE5MAT\\SQLEXPRESS;Initial Catalog=Post;Integrated Security=True;Encrypt=true;TrustServerCertificate=true;";
+    private readonly IConfiguration _configuration;
+    private const string dbName= "authors";
+    private readonly ILogger<AuthorService> _logger;
 
-    public void Conn()
+    public AuthorService(IConfiguration configuration, ILogger<AuthorService> logger)
     {
-        try
-        {
-            // Imposta la cultura corrente su invariante
-            CultureInfo culture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
-
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                // La connessione è aperta, puoi eseguire operazioni sul database qui
-
-                Console.WriteLine("Connessione al database riuscita!");
-
-                // Importante: Chiudi la connessione quando hai finito di utilizzarla
-                connection.Close();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Errore durante la connessione al database: {ex.Message}");
-        }
+        _configuration = configuration;
+        _logger = logger;
     }
 
-    public string GetPostById(int postId)
+    public Autor GetPostById(int id)
     {
-        string s = "";
+        const string sp_name = "sp_author_get";
+
         try
         {
-            
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            Autor autor = null;
+            string conn = string.Format(_configuration.GetConnectionString("DefaultConnection"), dbName);
+            using (SqlConnection connection = new SqlConnection(conn))
             {
                 connection.Open();
 
-                using (SqlCommand command = new SqlCommand("Sp_Post_get", connection))
+                using (SqlCommand command = new SqlCommand(sp_name, connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    // Aggiungi i parametri necessari per la stored procedure
-                    command.Parameters.Add(new SqlParameter("@Post_id", postId));
+                    command.Parameters.Add(new SqlParameter("@author_id", id));
 
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            // Leggi i dati restituiti dalla stored procedure e fai qualcosa con essi
-                            int id = reader.GetInt32(reader.GetOrdinal("ID"));
-                            string title = reader.GetString(reader.GetOrdinal("Titolo"));
-                             s = $"ID: {id}, Titolo: {title}";
-                          
+                            autor = new Autor();
+                            autor.Id = reader.GetInt32(reader.GetOrdinal("ID"));
+                            autor.Name = reader.GetString(reader.GetOrdinal("NAME"));
+                            autor.Surname = reader.GetString(reader.GetOrdinal("SURNAME"));
+                            autor.Mail = reader.GetString(reader.GetOrdinal("MAIL"));
                         }
                     }
                 }
                 connection.Close();
                
             }
-            return s;
+            return autor;
         }
         catch (Exception ex)
         {
+            LogError(ex);
             throw;
         }
+    }
+
+    private void LogError(Exception ex)
+    {
+        _logger.LogError(ex, "An error occurred in the AuthorService");
     }
 }
