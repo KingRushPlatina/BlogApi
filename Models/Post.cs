@@ -5,13 +5,12 @@ namespace BlogApi.Models
 {
     public class Post
     {
-        [Required]
         public int Id { get; set; }
         public string Title { get; set; }
         public string Body { get; set; }
-        public DateOnly PublishDate { get; set; }
-        Autor Autor { get; set; }
+        public DateTime PublishDate { get; set; }
+        public Autor Autor { get; set; }
         [AllowNull]
-        List<Comment>? Comments { get; set; }
+        public List<Comment>? Comments { get; set; }
     }
 }

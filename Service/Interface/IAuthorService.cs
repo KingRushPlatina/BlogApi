@@ -4,6 +4,6 @@ namespace BlogApi.Service.Interface
 {
     public interface IAuthorService
     {
-        public Autor GetPostById(int id);
+        Task<Autor?> GetPostById(int id);
     }
 }

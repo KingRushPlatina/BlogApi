@@ -1,6 +1,8 @@
 ﻿using BlogApi.Models;
+using BlogApi.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
-
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BlogApi.Controllers
 {
@@ -8,27 +10,60 @@ namespace BlogApi.Controllers
     [ApiController]
     public class BlogController : ControllerBase
     {
-        // GET: api/Post/{id}
+        private readonly IBlogService _blogService;
+        private readonly IAuthorService _authorService;
+
+        public BlogController(IBlogService blogService, IAuthorService authorService)
+        {
+            _authorService = authorService;
+            _blogService = blogService;
+        }
+
         [HttpGet("Post/{id}")]
-        public ActionResult<Post> GetPost(int id)
+        public async Task<ActionResult<Post>> GetPost(int id)
         {
-            return null;
+            Post post = await _blogService.GetPostById(id);
+            post.Autor = await SearchAutor(post.Autor.Id);
+            if (post == null)
+            {
+                return NotFound(); 
+            }
+
+            return Ok(post);
         }
 
-        // GET: api/Blog/Posts?pageNumber=1&pageSize=10
         [HttpGet("Posts")]
-        public ActionResult<List<Post>> GetPosts(int pageNumber, int pageSize)
+        public async Task<ActionResult<ResponsiveList<Post>>> GetPosts(int pageNumber, int pageSize = 4)
         {
+            var posts = await _blogService.GetPosts(pageNumber, pageSize);
 
-            return null;
+            var responsiveList = new ResponsiveList<Post>
+            {
+                PageSize = pageSize,
+                List = posts
+            };
+
+            return Ok(responsiveList);
         }
 
-        // POST: api/Blog/AddPost
         [HttpPost("Post")]
-        public ActionResult<string> AddPost([FromBody] Post value)
+        public async Task<ActionResult> AddPost([FromBody] Post value)
         {
+            if (await SearchAutor(value.Autor.Id) is not Autor author)
+                return BadRequest("L'autore non esiste.");
 
-            return null;
+            await _blogService.AddPost(value);
+
+            return Ok("Post aggiunto con successo");
         }
+
+        #region private methods
+        private async Task<Autor> SearchAutor(int id)
+        {
+            Autor? author = await _authorService.GetPostById(id);
+            return author;
+        }
+
+        #endregion
     }
 }

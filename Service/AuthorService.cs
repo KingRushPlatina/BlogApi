@@ -1,39 +1,39 @@
 ﻿using System;
 using System.Data;
-using System.Globalization;
-using System.Threading;
+using System.Threading.Tasks;
 using BlogApi.Service.Interface;
 using Microsoft.Data.SqlClient;
-using System;
-using System.Data.SqlClient;
-using System.Threading;
 using Microsoft.Extensions.Configuration;
-using System.Xml;
 using BlogApi.Models;
+using Microsoft.Extensions.Logging;
 
 public class AuthorService : IAuthorService
 {
     private readonly IConfiguration _configuration;
-    private const string dbName= "authors";
+    private const string dbName = "authors";
+    private readonly string conn;
+
     private readonly ILogger<AuthorService> _logger;
 
     public AuthorService(IConfiguration configuration, ILogger<AuthorService> logger)
     {
         _configuration = configuration;
         _logger = logger;
+         conn = string.Format(_configuration.GetConnectionString("DefaultConnection"), dbName);
+
     }
 
-    public Autor GetPostById(int id)
+    public async Task<Autor?> GetPostById(int id)
     {
+
         const string sp_name = "sp_author_get";
 
         try
         {
-            Autor autor = null;
-            string conn = string.Format(_configuration.GetConnectionString("DefaultConnection"), dbName);
+            Autor? autor = null;
             using (SqlConnection connection = new SqlConnection(conn))
             {
-                connection.Open();
+                await connection.OpenAsync();
 
                 using (SqlCommand command = new SqlCommand(sp_name, connection))
                 {
@@ -41,9 +41,9 @@ public class AuthorService : IAuthorService
 
                     command.Parameters.Add(new SqlParameter("@author_id", id));
 
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             autor = new Autor();
                             autor.Id = reader.GetInt32(reader.GetOrdinal("ID"));
@@ -54,7 +54,6 @@ public class AuthorService : IAuthorService
                     }
                 }
                 connection.Close();
-               
             }
             return autor;
         }
