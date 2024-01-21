@@ -33,7 +33,7 @@ namespace BlogApi.Controllers
         }
 
         [HttpGet("Posts")]
-        public async Task<ActionResult<ResponsiveList<Post>>> GetPosts(int pageNumber, int pageSize = 4)
+        public async Task<IActionResult> GetPosts(int pageNumber=1, int pageSize = 4)
         {
             var posts = await _blogService.GetPosts(pageNumber, pageSize);
 
@@ -43,18 +43,18 @@ namespace BlogApi.Controllers
                 List = posts
             };
 
-            return Ok(responsiveList);
+            return Ok(responsiveList.List);
         }
 
         [HttpPost("Post")]
-        public async Task<ActionResult> AddPost([FromBody] Post value)
+        public async Task<ActionResult> AddPost(int id)
         {
-            if (await SearchAutor(value.Autor.Id) is not Autor author)
-                return BadRequest("L'autore non esiste.");
+            //if (await SearchAutor(value.Autor.Id) is not Autor author)
+            //    return BadRequest("L'autore non esiste.");
 
-            await _blogService.AddPost(value);
+            //await _blogService.AddPost(value);
 
-            return Ok("Post aggiunto con successo");
+            return Ok("Aggiunto Corretamente");
         }
 
         #region private methods
