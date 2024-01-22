@@ -77,7 +77,7 @@ namespace BlogApi.Service
                                     Id = reader.GetInt32(reader.GetOrdinal("ID")),
                                     Title = reader.GetString(reader.GetOrdinal("Titolo")),
                                     Body = reader.GetString(reader.GetOrdinal("Contenuto")),
-                                    PublishDate = reader.GetDateTime(reader.GetOrdinal("DataPubblicazione")),
+                                    PublishDate = reader.GetDateTime(reader.GetOrdinal("DataPubblicazione")).ToLongDateString(),
                                     Autor = new Autor { Id = reader.GetInt32(reader.GetOrdinal("AuthorID")) },
                                     Comments = await GetComments(id)
                                 };
@@ -96,7 +96,7 @@ namespace BlogApi.Service
         }
 
 
-        public async Task<List<Post>> GetPosts(int pageNumber=1, int pageSize=4)
+        public async Task<List<Post>> GetPosts(string title,int pageNumber=1, int pageSize=4)
         {
             const string spName = "sp_posts_get";
 
@@ -111,7 +111,7 @@ namespace BlogApi.Service
                         command.CommandType = CommandType.StoredProcedure;
                         command.Parameters.AddWithValue("@PageNumber", pageNumber);
                         command.Parameters.AddWithValue("@PageSize", pageSize);
-
+                        command.Parameters.AddWithValue("@Title", title);
                         using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
                             List<Post> posts = new List<Post>();
@@ -123,7 +123,7 @@ namespace BlogApi.Service
                                     Id = reader.GetInt32(reader.GetOrdinal("ID")),
                                     Title = reader.GetString(reader.GetOrdinal("Titolo")),
                                     Body = reader.GetString(reader.GetOrdinal("Contenuto")),
-                                    PublishDate = reader.GetDateTime(reader.GetOrdinal("DataPubblicazione")),
+                                    PublishDate = reader.GetDateTime(reader.GetOrdinal("DataPubblicazione")).ToLongDateString(),
                                     Autor = new Autor { Id = reader.GetInt32(reader.GetOrdinal("AuthorID")) }, 
                                 };
 
@@ -166,9 +166,13 @@ namespace BlogApi.Service
                                 Comment comment = new Comment
                                 {
                                     Id = reader.GetInt32(reader.GetOrdinal("ID")),
-                                    Text = reader.GetString(reader.GetOrdinal("Testo"))
+                                    Text = reader.GetString(reader.GetOrdinal("Testo")),
+                                    CreationDate = reader.GetDateTime(reader.GetOrdinal("DataCommento")).ToLongDateString(),
+                                   
                                 };
-
+                                comment.Commentator = new Autor();
+                                comment.Commentator.Id = reader.GetInt32(reader.GetOrdinal("IDAuthor"));
+  
                                 comments.Add(comment);
                             }
 

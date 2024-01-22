@@ -24,6 +24,10 @@ namespace BlogApi.Controllers
         {
             Post post = await _blogService.GetPostById(id);
             post.Autor = await SearchAutor(post.Autor.Id);
+            foreach (var item in post.Comments)
+            {
+                item.Commentator = await SearchAutor(item.Commentator.Id);
+            }
             if (post == null)
             {
                 return NotFound(); 
@@ -33,10 +37,13 @@ namespace BlogApi.Controllers
         }
 
         [HttpGet("Posts")]
-        public async Task<IActionResult> GetPosts(int pageNumber=1, int pageSize = 4)
+        public async Task<IActionResult> GetPosts(string title=null,int pageNumber=1, int pageSize = 4)
         {
-            var posts = await _blogService.GetPosts(pageNumber, pageSize);
-
+            List<Post> posts = await _blogService.GetPosts(title,pageNumber, pageSize);
+            foreach (var post in posts)
+            {
+                post.Autor = await SearchAutor(post.Autor.Id);
+            }
             var responsiveList = new ResponsiveList<Post>
             {
                 PageSize = pageSize,
@@ -47,14 +54,14 @@ namespace BlogApi.Controllers
         }
 
         [HttpPost("Post")]
-        public async Task<ActionResult> AddPost(int id)
+        public async Task<ActionResult> AddPost([FromBody] Post value)
         {
-            //if (await SearchAutor(value.Autor.Id) is not Autor author)
-            //    return BadRequest("L'autore non esiste.");
+            if (await SearchAutor(value.Autor.Id) is not Autor author)
+                return BadRequest("L'autore non esiste.");
 
-            //await _blogService.AddPost(value);
+            await _blogService.AddPost(value);
 
-            return Ok("Aggiunto Corretamente");
+            return Ok();
         }
 
         #region private methods

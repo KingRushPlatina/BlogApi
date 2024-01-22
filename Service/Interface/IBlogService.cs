@@ -8,6 +8,6 @@ namespace BlogApi.Service.Interface
     {
         Task AddPost(Post value);
         Task<Post> GetPostById(int id);
-        Task<List<Post>> GetPosts(int pageNumber, int pageSize);
+        Task<List<Post>> GetPosts(string title, int pageNumber, int pageSize);
     }
 }
