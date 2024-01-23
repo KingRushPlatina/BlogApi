@@ -53,19 +53,59 @@ namespace BlogApi.Controllers
             return Ok(responsiveList.List);
         }
 
+        //[HttpPost("Post")]
+        //public async Task<ActionResult> AddPost([FromBody] Post value)
+        //{
+        //    if (await SearchAutor(value.Autor.Id) is not Autor author)
+        //        return BadRequest("L'autore non esiste.");
+
+        //    await _blogService.AddPost(value);
+
+        //    return Ok();
+        //}
         [HttpPost("Post")]
-        public async Task<ActionResult> AddPost([FromBody] Post value)
+        public async Task<ActionResult> AddPost([FromForm] Post formData)
         {
-            if (await SearchAutor(value.Autor.Id) is not Autor author)
-                return BadRequest("L'autore non esiste.");
+            try
+            {
+                // Estrai i dati del post
+                var title = formData.Title;
+                var body = formData.Body;
+                var authorId = formData.Autor.Id;
 
-            await _blogService.AddPost(value);
+                // Estrai l'immagine
+                var file = formData.File;
+                if (file != null && file.Length > 0)
+                {
+                    // Esegui l'upload del file nel tuo server (ad esempio, salva il file su disco)
+                    var filePath = Path.Combine("Images", file.FileName);
 
-            return Ok();
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+                }
+
+                // Esegui l'inserimento del post nel database
+                await _blogService.AddPost(new Post
+                {
+                    Title = title,
+                    Body = body,
+                    Autor = new Autor { Id = authorId }
+                });
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                // Gestisci gli errori
+                return StatusCode(StatusCodes.Status500InternalServerError, "Errore interno del server");
+            }
         }
+    
 
-        #region private methods
-        private async Task<Autor> SearchAutor(int id)
+    #region private methods
+    private async Task<Autor> SearchAutor(int id)
         {
             Autor? author = await _authorService.GetPostById(id);
             return author;

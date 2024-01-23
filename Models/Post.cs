@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace BlogApi.Models
 {
@@ -12,5 +13,6 @@ namespace BlogApi.Models
         public Autor Autor { get; set; }
         [AllowNull]
         public List<Comment>? Comments { get; set; }
+        public IFormFile? File { get; set; } // Aggiunto campo per il file
     }
 }
