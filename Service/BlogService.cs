@@ -86,7 +86,7 @@ namespace BlogApi.Service
                     }
                 }
 
-                return post; 
+                return post;
             }
             catch (Exception ex)
             {
@@ -96,7 +96,7 @@ namespace BlogApi.Service
         }
 
 
-        public async Task<List<Post>> GetPosts(string title,int pageNumber=1, int pageSize=4)
+        public async Task<List<Post>> GetPosts(string title, int pageNumber = 1, int pageSize = 4)
         {
             const string spName = "sp_posts_get";
 
@@ -124,7 +124,7 @@ namespace BlogApi.Service
                                     Title = reader.GetString(reader.GetOrdinal("Titolo")),
                                     Body = reader.GetString(reader.GetOrdinal("Contenuto")),
                                     PublishDate = reader.GetDateTime(reader.GetOrdinal("DataPubblicazione")).ToLongDateString(),
-                                    Autor = new Autor { Id = reader.GetInt32(reader.GetOrdinal("AuthorID")) }, 
+                                    Autor = new Autor { Id = reader.GetInt32(reader.GetOrdinal("AuthorID")) },
                                 };
 
                                 posts.Add(post);
@@ -168,11 +168,11 @@ namespace BlogApi.Service
                                     Id = reader.GetInt32(reader.GetOrdinal("ID")),
                                     Text = reader.GetString(reader.GetOrdinal("Testo")),
                                     CreationDate = reader.GetDateTime(reader.GetOrdinal("DataCommento")).ToLongDateString(),
-                                   
+
                                 };
                                 comment.Commentator = new Autor();
                                 comment.Commentator.Id = reader.GetInt32(reader.GetOrdinal("IDAuthor"));
-  
+
                                 comments.Add(comment);
                             }
 

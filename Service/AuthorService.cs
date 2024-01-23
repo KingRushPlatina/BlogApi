@@ -19,7 +19,7 @@ public class AuthorService : IAuthorService
     {
         _configuration = configuration;
         _logger = logger;
-         conn = string.Format(_configuration.GetConnectionString("DefaultConnection"), dbName);
+        conn = string.Format(_configuration.GetConnectionString("DefaultConnection"), dbName);
 
     }
 

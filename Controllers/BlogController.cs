@@ -30,16 +30,16 @@ namespace BlogApi.Controllers
             }
             if (post == null)
             {
-                return NotFound(); 
+                return NotFound();
             }
 
             return Ok(post);
         }
 
         [HttpGet("Posts")]
-        public async Task<IActionResult> GetPosts(string title=null,int pageNumber=1, int pageSize = 4)
+        public async Task<IActionResult> GetPosts(string title = null, int pageNumber = 1, int pageSize = 4)
         {
-            List<Post> posts = await _blogService.GetPosts(title,pageNumber, pageSize);
+            List<Post> posts = await _blogService.GetPosts(title, pageNumber, pageSize);
             foreach (var post in posts)
             {
                 post.Autor = await SearchAutor(post.Autor.Id);
