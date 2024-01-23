@@ -102,10 +102,51 @@ namespace BlogApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Errore interno del server");
             }
         }
-    
+        [HttpPost("Upload")]
+        public async Task<ActionResult> AddUpload([FromForm] UploadModel value)
+        {
+            try
+            {
 
-    #region private methods
-    private async Task<Autor> SearchAutor(int id)
+                var file = value.File;
+                if (file != null && file.Length > 0)
+                {
+                    var filePath = Path.Combine("Images", file.FileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+                }
+
+              
+               return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Errore interno del server");
+            }
+        }
+        [HttpPost("Uploade")]
+        public IActionResult Upload([FromForm] UploadModel model)
+        {
+            return Ok(new
+            {
+                model.File.FileName,
+                model.File.ContentType,
+                model.File.Length,
+                Message = "Using FromForm works perfectly fine!"
+            });
+        }
+        public class UploadModel
+        {
+            public IFormFile File { get; set; }
+            public string Head { get; set; }
+
+            public string Body { get; set; }
+        }
+        #region private methods
+        private async Task<Autor> SearchAutor(int id)
         {
             Autor? author = await _authorService.GetPostById(id);
             return author;
