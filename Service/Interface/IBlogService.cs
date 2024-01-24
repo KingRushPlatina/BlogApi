@@ -6,7 +6,7 @@ namespace BlogApi.Service.Interface
 {
     public interface IBlogService
     {
-        Task AddPost(Post value);
+        Task AddPost(InputPost value);
         Task<Post> GetPostById(int id);
         Task<List<Post>> GetPosts(string title, int pageNumber, int pageSize);
     }

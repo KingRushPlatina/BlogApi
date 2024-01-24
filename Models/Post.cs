@@ -13,6 +13,6 @@ namespace BlogApi.Models
         public Autor Autor { get; set; }
         [AllowNull]
         public List<Comment>? Comments { get; set; }
-        public IFormFile? File { get; set; } // Aggiunto campo per il file
+        public string? ImagePath { get; set; }
     }
 }

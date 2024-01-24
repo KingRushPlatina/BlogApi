@@ -12,7 +12,7 @@ namespace BlogApi.Controllers
     {
         private readonly IBlogService _blogService;
         private readonly IAuthorService _authorService;
-
+        private readonly  string address = "http://localhost:5108/";
         public BlogController(IBlogService blogService, IAuthorService authorService)
         {
             _authorService = authorService;
@@ -40,6 +40,7 @@ namespace BlogApi.Controllers
         public async Task<IActionResult> GetPosts(string title = null, int pageNumber = 1, int pageSize = 4)
         {
             List<Post> posts = await _blogService.GetPosts(title, pageNumber, pageSize);
+            
             foreach (var post in posts)
             {
                 post.Autor = await SearchAutor(post.Autor.Id);
@@ -53,98 +54,40 @@ namespace BlogApi.Controllers
             return Ok(responsiveList.List);
         }
 
-        //[HttpPost("Post")]
-        //public async Task<ActionResult> AddPost([FromBody] Post value)
-        //{
-        //    if (await SearchAutor(value.Autor.Id) is not Autor author)
-        //        return BadRequest("L'autore non esiste.");
-
-        //    await _blogService.AddPost(value);
-
-        //    return Ok();
-        //}
-        [HttpPost("Post")]
-        public async Task<ActionResult> AddPost([FromForm] Post formData)
-        {
-            try
-            {
-                // Estrai i dati del post
-                var title = formData.Title;
-                var body = formData.Body;
-                var authorId = formData.Autor.Id;
-
-                // Estrai l'immagine
-                var file = formData.File;
-                if (file != null && file.Length > 0)
-                {
-                    // Esegui l'upload del file nel tuo server (ad esempio, salva il file su disco)
-                    var filePath = Path.Combine("Images", file.FileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-                }
-
-                // Esegui l'inserimento del post nel database
-                await _blogService.AddPost(new Post
-                {
-                    Title = title,
-                    Body = body,
-                    Autor = new Autor { Id = authorId }
-                });
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                // Gestisci gli errori
-                return StatusCode(StatusCodes.Status500InternalServerError, "Errore interno del server");
-            }
-        }
+        
+      
         [HttpPost("Upload")]
-        public async Task<ActionResult> AddUpload([FromForm] UploadModel value)
+        public async Task<ActionResult> AddUpload([FromForm] InputPost value)
         {
             try
             {
-
+                if (await SearchAutor(value.AutorId) is not Autor author)
+                {
+                    return BadRequest("L'autore non esiste.");
+                }
                 var file = value.File;
                 if (file != null && file.Length > 0)
                 {
                     var filePath = Path.Combine("Images", file.FileName);
-
+                    value.Path = address + filePath;
+                    value.Path = value.Path.Replace("\\", "/");
+   
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
+                        await _blogService.AddPost(value);
                         await file.CopyToAsync(stream);
-                    }
-                }
-
-              
+                        
+                    }   
+                }         
                return Ok();
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Errore interno del server");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Errore interno del server"+ex);
             }
         }
-        [HttpPost("Uploade")]
-        public IActionResult Upload([FromForm] UploadModel model)
-        {
-            return Ok(new
-            {
-                model.File.FileName,
-                model.File.ContentType,
-                model.File.Length,
-                Message = "Using FromForm works perfectly fine!"
-            });
-        }
-        public class UploadModel
-        {
-            public IFormFile File { get; set; }
-            public string Head { get; set; }
 
-            public string Body { get; set; }
-        }
+     
         #region private methods
         private async Task<Autor> SearchAutor(int id)
         {

@@ -22,7 +22,7 @@ namespace BlogApi.Service
             conn = string.Format(_configuration.GetConnectionString("DefaultConnection"), dbName);
         }
 
-        public async Task AddPost(Post value)
+        public async Task AddPost(InputPost value)
         {
             const string spName = "sp_post_insert";
 
@@ -36,9 +36,10 @@ namespace BlogApi.Service
                     {
                         command.CommandType = CommandType.StoredProcedure;
 
-                        command.Parameters.AddWithValue("@title", value.Title);
+                        command.Parameters.AddWithValue("@title", value.Head);
                         command.Parameters.AddWithValue("@body", value.Body);
-                        command.Parameters.AddWithValue("@authorid", value.Autor.Id);
+                        command.Parameters.AddWithValue("@authorid", value.AutorId);
+                        command.Parameters.AddWithValue("@ImagePath", value.Path);
 
                         await command.ExecuteNonQueryAsync();
                     }
@@ -79,6 +80,7 @@ namespace BlogApi.Service
                                     Body = reader.GetString(reader.GetOrdinal("Contenuto")),
                                     PublishDate = reader.GetDateTime(reader.GetOrdinal("DataPubblicazione")).ToLongDateString(),
                                     Autor = new Autor { Id = reader.GetInt32(reader.GetOrdinal("AuthorID")) },
+                                    ImagePath = reader.GetString(reader.GetOrdinal("ImagePath")),
                                     Comments = await GetComments(id)
                                 };
                             }
@@ -125,7 +127,8 @@ namespace BlogApi.Service
                                     Body = reader.GetString(reader.GetOrdinal("Contenuto")),
                                     PublishDate = reader.GetDateTime(reader.GetOrdinal("DataPubblicazione")).ToLongDateString(),
                                     Autor = new Autor { Id = reader.GetInt32(reader.GetOrdinal("AuthorID")) },
-                                };
+                                    ImagePath = !reader.IsDBNull(reader.GetOrdinal("ImagePath")) ? reader.GetString(reader.GetOrdinal("ImagePath")) : null
+                            };
 
                                 posts.Add(post);
                             }
