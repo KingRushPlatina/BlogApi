@@ -96,8 +96,6 @@ namespace BlogApi.Service
                 throw;
             }
         }
-
-
         public async Task<List<Post>> GetPosts(string title, int pageNumber = 1, int pageSize = 4)
         {
             const string spName = "sp_posts_get";
@@ -128,7 +126,7 @@ namespace BlogApi.Service
                                     PublishDate = reader.GetDateTime(reader.GetOrdinal("DataPubblicazione")).ToLongDateString(),
                                     Autor = new Autor { Id = reader.GetInt32(reader.GetOrdinal("AuthorID")) },
                                     ImagePath = !reader.IsDBNull(reader.GetOrdinal("ImagePath")) ? reader.GetString(reader.GetOrdinal("ImagePath")) : null
-                            };
+                                };
 
                                 posts.Add(post);
                             }
@@ -144,7 +142,6 @@ namespace BlogApi.Service
                 throw;
             }
         }
-
         private async Task<List<Comment>> GetComments(int postId)
         {
             const string spName = "sp_comments_get";
@@ -190,7 +187,6 @@ namespace BlogApi.Service
                 throw;
             }
         }
-
         private void LogError(Exception ex)
         {
             _logger.LogError(ex, "An error occurred in the BlogService");

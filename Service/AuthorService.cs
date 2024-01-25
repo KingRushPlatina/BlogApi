@@ -63,9 +63,10 @@ public class AuthorService : IAuthorService
             throw;
         }
     }
-
+    #region private method
     private void LogError(Exception ex)
     {
         _logger.LogError(ex, "An error occurred in the AuthorService");
     }
+    #endregion
 }

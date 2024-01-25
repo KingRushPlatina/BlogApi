@@ -12,7 +12,7 @@ namespace BlogApi.Controllers
     {
         private readonly IBlogService _blogService;
         private readonly IAuthorService _authorService;
-        private readonly  string address = "http://localhost:5108/";
+        private readonly string address = "http://localhost:5108/";
         public BlogController(IBlogService blogService, IAuthorService authorService)
         {
             _authorService = authorService;
@@ -40,7 +40,7 @@ namespace BlogApi.Controllers
         public async Task<IActionResult> GetPosts(string title = null, int pageNumber = 1, int pageSize = 4)
         {
             List<Post> posts = await _blogService.GetPosts(title, pageNumber, pageSize);
-            
+
             foreach (var post in posts)
             {
                 post.Autor = await SearchAutor(post.Autor.Id);
@@ -54,8 +54,6 @@ namespace BlogApi.Controllers
             return Ok(responsiveList.List);
         }
 
-        
-      
         [HttpPost("Upload")]
         public async Task<ActionResult> AddUpload([FromForm] InputPost value)
         {
@@ -71,23 +69,23 @@ namespace BlogApi.Controllers
                     var filePath = Path.Combine("Images", file.FileName);
                     value.Path = address + filePath;
                     value.Path = value.Path.Replace("\\", "/");
-   
+
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await _blogService.AddPost(value);
                         await file.CopyToAsync(stream);
-                        
-                    }   
-                }         
-               return Ok();
+
+                    }
+                }
+                return Ok();
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Errore interno del server"+ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Errore interno del server" + ex);
             }
         }
 
-     
+
         #region private methods
         private async Task<Autor> SearchAutor(int id)
         {
